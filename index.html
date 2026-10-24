@@ -3,77 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Assessor de Corrida Pro</title>
+  <title>Assessor de Corrida Pro - Strava</title>
   <style>
-    /* Estilos base para manter o layout limpo e alinhado */
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #0f172a;
-      color: #f8fafc;
+    body { 
+      font-family: Arial, sans-serif; 
+      background: #121212; 
+      color: #fff; 
+      text-align: center; 
+      padding: 20px; 
       margin: 0;
-      padding: 20px;
     }
-    .header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .header h1 {
-      color: #38bdf8;
+    h1 { 
+      color: #fc4c02; 
       margin-bottom: 5px;
     }
-    .header p {
-      color: #94a3b8;
+    .subtitle {
+      color: #888;
       font-size: 14px;
+      margin-bottom: 25px;
     }
     .metrics-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      max-width: 1200px;
-      margin: 0 auto 30px auto;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      max-width: 800px;
+      margin: 0 auto;
     }
-    .card {
-      background-color: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    .card { 
+      background: #1e1e1e; 
+      padding: 20px; 
+      border-radius: 10px; 
+      border-left: 5px solid #fc4c02; 
+      text-align: left;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     }
     .card span {
       display: block;
-      color: #94a3b8;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
+      color: #aaa;
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 1px;
       margin-bottom: 8px;
     }
-    .card h2 {
-      margin: 0;
-      font-size: 28px;
-      color: #38bdf8;
+    .card h2 { 
+      margin: 0; 
+      font-size: 24px; 
+      color: #fff; 
     }
-    .analise-tecnica {
-      max-width: 1200px;
-      margin: 0 auto;
-      background-color: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 20px;
-    }
-    .analise-tecnica p {
-      margin: 0;
-      color: #cbd5e1;
+    .status-container {
+      margin-top: 30px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      color: #bbb;
+      font-size: 13px;
     }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h1>⚡ ASSESSOR DE CORRIDA PRO</h1>
-    <p>Plataforma Inteligente de Periodização e Análise Strava</p>
-  </div>
+  <h1>⚡ ASSESSOR DE CORRIDA PRO</h1>
+  <div class="subtitle">Plataforma Inteligente de Periodização e Análise Strava</div>
 
-  <!-- CARTÕES DE MÉTRICAS (Com os IDs corretos para receber os dados da API) -->
+  <!-- CARTÕES DE MÉTRICAS -->
   <div class="metrics-grid">
     <div class="card">
       <span>DISTÂNCIA</span>
@@ -96,46 +92,40 @@
     </div>
   </div>
 
-  <!-- STATUS DA ANÁLISE TÉCNICA -->
-  <div class="analise-tecnica">
-    <p id="status-analise">🔄 Aguardando sincronização GPS do Strava... Os dados aparecerão aqui automaticamente.</p>
+  <!-- STATUS DE SINCRONIZAÇÃO -->
+  <div class="status-container" id="conteudo-status">
+    🔄 Aguardando sincronização GPS do Strava... Os dados aparecerão aqui automaticamente.
   </div>
 
-  <!-- SCRIPT DE SINCRONIZAÇÃO EM TEMPO REAL -->
   <script>
-    async function carregarDadosTreino() {
+    async function carregarTreinos() {
       try {
-        const resposta = await fetch('/api');
-        const json = await resposta.json();
+        const res = await fetch('/api');
+        const data = await res.json();
+        
+        if (data.sucesso && data.dados) {
+          const { distancia, tempo, pace, velocidade, data: horaSinc } = data.dados;
 
-        if (json.sucesso && json.dados) {
-          const { distancia, tempo, pace, velocidade, data } = json.dados;
+          // Atualiza os valores nos cartões
+          document.getElementById('distancia').innerText = distancia || '0.00 km';
+          document.getElementById('tempo').innerText = tempo || '00:00';
+          document.getElementById('pace').innerText = pace || '--\'--"';
+          document.getElementById('velocidade').innerText = velocidade || '0.0 km/h';
 
-          const elDist = document.getElementById('distancia');
-          const elTempo = document.getElementById('tempo');
-          const elPace = document.getElementById('pace');
-          const elVel = document.getElementById('velocidade');
-          const elStatus = document.getElementById('status-analise');
-
-          if (elDist && distancia) elDist.textContent = distancia;
-          if (elTempo && tempo) elTempo.textContent = tempo;
-          if (elPace && pace) elPace.textContent = pace;
-          if (elVel && velocidade) elVel.textContent = velocidade;
-
-          if (elStatus && distancia !== "0.00 km") {
-            elStatus.textContent = `✅ Último treino sincronizado às ${data} | Distância: ${distancia} | Tempo: ${tempo}`;
+          // Atualiza a barra de status se houver um treino válido
+          const statusDiv = document.getElementById('conteudo-status');
+          if (distancia && distancia !== "0.00 km") {
+            statusDiv.innerHTML = `✅ Último treino sincronizado às <strong>${horaSinc || 'Agora'}</strong> | Distância: ${distancia} | Tempo: ${tempo}`;
           }
         }
-      } catch (erro) {
-        console.error("Erro ao sincronizar dados:", erro);
+      } catch (err) {
+        console.error("Erro ao carregar dados:", err);
       }
     }
 
-    // Executa assim que a página abre e verifica novas atualizações a cada 5 segundos
-    document.addEventListener('DOMContentLoaded', () => {
-      carregarDadosTreino();
-      setInterval(carregarDadosTreino, 5000);
-    });
+    // Carrega ao abrir e atualiza a cada 5 segundos em tempo real
+    carregarTreinos();
+    setInterval(carregarTreinos, 5000);
   </script>
 
 </body>
