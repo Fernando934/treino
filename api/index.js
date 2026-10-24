@@ -4,26 +4,25 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
   if (req.method === 'POST') {
-    let dados = req.body || {};
+    // Mostra exatamente o que o Make enviou nos logs da Vercel
+    console.log("CORPO RECEBIDO DO MAKE:", JSON.stringify(req.body));
 
+    let dados = req.body || {};
     if (typeof dados === 'string') {
-      try { dados = JSON.parse(dados); } catch (e) { dados = {}; }
+      try { dados = JSON.parse(dados); } catch (e) {}
     }
 
-    // Captura flexível de qualquer propriedade enviada
+    // Tenta capturar os valores de forma totalmente flexível
     ultimoTreino = {
-      distancia: dados.distancia || dados.distance || dados.text || 'N/A',
-      tempo: dados.tempo || dados.moving_time || dados.duration || 'N/A',
+      distancia: dados.distancia || dados.distance || dados.dist || Object.values(dados)[0] || 'N/A',
+      tempo: dados.tempo || dados.moving_time || dados.duration || dados.time || Object.values(dados)[1] || 'N/A',
       data: new Date().toLocaleTimeString('pt-BR')
     };
 
