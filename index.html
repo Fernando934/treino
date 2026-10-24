@@ -2,39 +2,106 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Assessor de Corrida Pro</title>
+  <style>
+    /* Estilos base para manter o layout limpo e alinhado */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+      margin: 0;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      color: #38bdf8;
+      margin-bottom: 5px;
+    }
+    .header p {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto 30px auto;
+    }
+    .card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .card span {
+      display: block;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .card h2 {
+      margin: 0;
+      font-size: 28px;
+      color: #38bdf8;
+    }
+    .analise-tecnica {
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .analise-tecnica p {
+      margin: 0;
+      color: #cbd5e1;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- EXEMPLO DA ESTRUTURA DOS CARTÕES DE MÉTRICAS -->
+  <div class="header">
+    <h1>⚡ ASSESSOR DE CORRIDA PRO</h1>
+    <p>Plataforma Inteligente de Periodização e Análise Strava</p>
+  </div>
+
+  <!-- CARTÕES DE MÉTRICAS (Com os IDs corretos para receber os dados da API) -->
   <div class="metrics-grid">
     <div class="card">
-      <span class="label">DISTÂNCIA</span>
+      <span>DISTÂNCIA</span>
       <h2 id="distancia">0.00 km</h2>
     </div>
 
     <div class="card">
-      <span class="label">TEMPO TOTAL</span>
+      <span>TEMPO TOTAL</span>
       <h2 id="tempo">00:00</h2>
     </div>
 
     <div class="card">
-      <span class="label">PACE MÉDIO</span>
+      <span>PACE MÉDIO</span>
       <h2 id="pace">--'--"</h2>
     </div>
 
     <div class="card">
-      <span class="label">VELOCIDADE MÉDIA</span>
+      <span>VELOCIDADE MÉDIA</span>
       <h2 id="velocidade">0.0 km/h</h2>
     </div>
   </div>
 
-  <!-- STATUS DA CORRIDA -->
+  <!-- STATUS DA ANÁLISE TÉCNICA -->
   <div class="analise-tecnica">
-    <p id="status-analise">Aguardando sincronização GPS do Strava... Os dados aparecerão aqui automaticamente.</p>
+    <p id="status-analise">🔄 Aguardando sincronização GPS do Strava... Os dados aparecerão aqui automaticamente.</p>
   </div>
 
-  <!-- SCRIPT DE CONSUMO DA API DA VERCEL -->
+  <!-- SCRIPT DE SINCRONIZAÇÃO EM TEMPO REAL -->
   <script>
     async function carregarDadosTreino() {
       try {
@@ -44,34 +111,32 @@
         if (json.sucesso && json.dados) {
           const { distancia, tempo, pace, velocidade, data } = json.dados;
 
-          // Elementos HTML
           const elDist = document.getElementById('distancia');
           const elTempo = document.getElementById('tempo');
           const elPace = document.getElementById('pace');
           const elVel = document.getElementById('velocidade');
           const elStatus = document.getElementById('status-analise');
 
-          // Atualiza os valores visuais no painel
           if (elDist && distancia) elDist.textContent = distancia;
           if (elTempo && tempo) elTempo.textContent = tempo;
           if (elPace && pace) elPace.textContent = pace;
           if (elVel && velocidade) elVel.textContent = velocidade;
 
-          // Atualiza o banner de status quando houver dados
           if (elStatus && distancia !== "0.00 km") {
-            elStatus.textContent = `Último treino sincronizado às ${data} | Distância: ${distancia} | Tempo: ${tempo}`;
+            elStatus.textContent = `✅ Último treino sincronizado às ${data} | Distância: ${distancia} | Tempo: ${tempo}`;
           }
         }
       } catch (erro) {
-        console.error("Erro ao procurar dados na API:", erro);
+        console.error("Erro ao sincronizar dados:", erro);
       }
     }
 
-    // Executa assim que a página carrega e atualiza a cada 5 segundos
+    // Executa assim que a página abre e verifica novas atualizações a cada 5 segundos
     document.addEventListener('DOMContentLoaded', () => {
       carregarDadosTreino();
       setInterval(carregarDadosTreino, 5000);
     });
   </script>
+
 </body>
 </html>
