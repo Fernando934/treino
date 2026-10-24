@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registo de Treinos - Strava</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #121212; color: #fff; text-align: center; padding: 20px; }
+    .card { background: #1e1e1e; padding: 20px; margin: 15px auto; max-width: 400px; border-radius: 10px; border-left: 5px solid #fc4c02; }
+    h1 { color: #fc4c02; }
+  </style>
+</head>
+<body>
+  <h1>🏃‍♂️ Treinos Recentes</h1>
+  <div id="conteudo">A carregar dados...</div>
+
+  <script>
+    async function carregarTreinos() {
+      try {
+        const res = await fetch('/api');
+        const data = await res.json();
+        
+        const container = document.getElementById('conteudo');
+        if (data.dados && (data.dados.distancia || data.dados.tempo)) {
+          container.innerHTML = `
+            <div class="card">
+              <p><strong>Distância:</strong> ${data.dados.distancia || 'N/A'}</p>
+              <p><strong>Tempo:</strong> ${data.dados.tempo || 'N/A'}</p>
+            </div>
+          `;
+        } else {
+          container.innerHTML = '<p>Nenhum treino recebido até ao momento.</p>';
+        }
+      } catch (err) {
+        document.getElementById('conteudo').innerText = 'Erro ao carregar os dados.';
+      }
+    }
+    carregarTreinos();
+  </script>
+</body>
+</html>
