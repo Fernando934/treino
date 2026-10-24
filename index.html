@@ -3,242 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assessor de Corrida Pro</title>
+    <title>Assessor de Corrida Pro IA - Dashboard</title>
     <style>
         :root {
-            --bg-main: #0b1329;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --border-color: rgba(255, 255, 255, 0.1);
-            --accent-color: #f39c12;
-            --text-main: #ffffff;
-            --text-muted: #a0aec0;
+            --bg-color: #0d0f12;
+            --card-bg: #161a22;
+            --accent-green: #22c55e;
+            --accent-neon: #a3e635;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #262c36;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1100px;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        header h1 {
-            color: var(--accent-color);
-            font-size: 1.8rem;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
-
-        header p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        /* Cartões de Métricas */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .metric-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-        }
-
-        .metric-title {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-
-        .metric-value {
-            font-size: 1.6rem;
-            font-weight: bold;
-        }
-
-        .metric-value.distance { color: #2ecc71; }
-        .metric-value.time { color: #3498db; }
-        .metric-value.pace { color: #e74c3c; }
-        .metric-value.speed { color: #f1c40f; }
-
-        /* Secção de Análise */
-        .section-box {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px 20px;
-            margin-bottom: 25px;
-        }
-
-        .section-title {
-            font-size: 0.95rem;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .sync-status {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
-        /* Tabela de Periodização */
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-
-        th {
-            color: var(--text-muted);
-            font-weight: 600;
-            padding: 10px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        td {
-            padding: 12px 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        td:nth-child(2) {
-            color: #3498db;
-            font-weight: 500;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Segoe UI, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 900px; }
+        header { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        header h1 { font-size: 26px; color: var(--accent-neon); text-transform: uppercase; }
+        header p { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .metric-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 10px; text-align: center; }
+        .metric-card .title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; }
+        .metric-card .value { font-size: 24px; font-weight: bold; color: var(--accent-green); margin-top: 5px; }
+        .section-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .section-title { font-size: 18px; color: var(--accent-neon); margin-bottom: 15px; }
+        .feedback-box { background: #0f1217; border-left: 4px solid var(--accent-green); padding: 15px; border-radius: 6px; line-height: 1.6; font-size: 15px; color: #d1d5db; }
+        .feedback-box h4 { color: var(--text-main); margin-top: 10px; margin-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background: #11141a; color: var(--accent-neon); }
+        .tag-run { color: #4ade80; font-weight: bold; }
+        .tag-strength { color: #60a5fa; font-weight: bold; }
+        .tag-rest { color: #f87171; font-weight: bold; }
+        .sim-btn { background: var(--accent-green); color: #000; font-weight: bold; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        .sim-btn:hover { background: var(--accent-neon); }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <!-- Cabeçalho -->
-        <header>
-            <h1>⚡ ASSESSOR DE CORRIDA PRO</h1>
-            <p>Plataforma Inteligente de Periodização e Análise Strava</p>
-        </header>
-
-        <!-- Cartões de Métricas -->
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-title">Distância</div>
-                <div id="val-distancia" class="metric-value distance">0.00 km</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-title">Tempo Total</div>
-                <div id="val-tempo" class="metric-value time">00:00</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-title">Pace Médio</div>
-                <div id="val-pace" class="metric-value pace">--'--&quot;</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-title">Velocidade Média</div>
-                <div id="val-velocidade" class="metric-value speed">0.0 km/h</div>
-            </div>
-        </div>
-
-        <!-- Análise Técnica -->
-        <div class="section-box">
-            <div class="section-title">📊 Análise Técnica da Última Corrida</div>
-            <div id="val-status" class="sync-status">Aguardando sincronização GPS do Strava... Os dados aparecerão aqui automaticamente.</div>
-        </div>
-
-        <!-- Periodização Semanal -->
-        <div class="section-box">
-            <div class="section-title">📅 Periodização Semanal Recomendada</div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Dia</th>
-                            <th>Tipo de Treino</th>
-                            <th>Meta</th>
-                            <th>Foco do Assessor</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Segunda</td>
-                            <td>Corrida Contínua (Z2)</td>
-                            <td>5.0 km</td>
-                            <td>Desenvolvimento aeróbico.</td>
-                        </tr>
-                        <tr>
-                            <td>Terça</td>
-                            <td>Fortalecimento Miniband</td>
-                            <td>40 min</td>
-                            <td>Estabilidade de joelhos e core.</td>
-                        </tr>
-                        <tr>
-                            <td>Quarta</td>
-                            <td>Treino Intervalado</td>
-                            <td>6x 400m</td>
-                            <td>Ganho de velocidade e VO2.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<div class="app-container">
+    <header>
+        <h1>⚡ Assessor de Corrida Pro</h1>
+        <p>Plataforma Inteligente de Periodização e Análise Strava</p>
+    </header>
+    <div class="metrics-grid">
+        <div class="metric-card"><div class="title">Distância</div><div class="value" id="distVal">0.00 km</div></div>
+        <div class="metric-card"><div class="title">Tempo Total</div><div class="value" id="tempoVal">00:00</div></div>
+        <div class="metric-card"><div class="title">Pace Médio</div><div class="value" id="paceVal">--'--"</div></div>
+        <div class="metric-card"><div class="title">Velocidade Média</div><div class="value" id="velVal">0.0 km/h</div></div>
     </div>
+    <div class="section-card">
+        <div class="section-title">📊 Análise Técnica da Última Corrida</div>
+        <div class="feedback-box" id="analysisBox">Aguardando sincronização GPS do Strava... Os dados aparecerão aqui automaticamente.</div>
+    </div>
+    <div class="section-card">
+        <div class="section-title">🗓️ Periodização Semanal Recomendada</div>
+        <table>
+            <thead><tr><th>Dia</th><th>Tipo de Treino</th><th>Meta</th><th>Foco do Assessor</th></tr></thead>
+            <tbody>
+                <tr><td>Segunda</td><td class="tag-run">Corrida Contínua (Z2)</td><td>5.0 km</td><td>Desenvolvimento aeróbico.</td></tr>
+                <tr><td>Terça</td><td class="tag-strength">Fortalecimento Miniband</td><td>40 min</td><td>Estabilidade de joelhos e core.</td></tr>
+                <tr><td>Quarta</td><td class="tag-run">Treino Intervalado</td><td>6x 400m</td><td>Ganho de velocidade e VO2.</td></tr>
+                <tr><td>Quinta</td><td class="tag-rest">Descanso Total</td><td>--</td><td>Recuperação tecidual.</td></tr>
+                <tr><td>Sexta</td><td class="tag-run">Rodagem Regenerativa</td><td>4.0 km</td><td>Soltar as pernas levemente.</td></tr>
+                <tr><td>Sábado</td><td class="tag-run">Longão Progressivo</td><td>8.0 km</td><td>Resistência e gestão de ritmo.</td></tr>
+                <tr><td>Domingo</td><td class="tag-rest">Descanso Total</td><td>--</td><td>Supercompensação completa.</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <button class="sim-btn" onclick="simularTreino()">🧪 Simular Corrida (5 km em 25 min)</button>
+</div>
+<script>
+    function processarDados(km, segundos) {
+        const distKm = km;
+        const tempoMin = segundos / 60;
+        const paceDec = tempoMin / distKm;
+        const pMin = Math.floor(paceDec);
+        const pSeg = Math.round((paceDec - pMin) * 60);
+        const paceStr = `${pMin}'${pSeg < 10 ? '0' : ''}${pSeg}"`;
+        const vel = (distKm / (segundos / 3600)).toFixed(1);
 
-    <script>
-        async function atualizarPainel() {
-            try {
-                const resposta = await fetch('/api');
-                const resultado = await resposta.json();
+        document.getElementById('distVal').innerText = `${distKm.toFixed(2)} km`;
+        document.getElementById('tempoVal').innerText = `${Math.floor(segundos/60)}:${Math.round(segundos%60).toString().padStart(2,'0')}`;
+        document.getElementById('paceVal').innerText = `${paceStr} /km`;
+        document.getElementById('velVal').innerText = `${vel} km/h`;
 
-                if (resultado.sucesso && resultado.dados) {
-                    const { distancia, tempo, data } = resultado.dados;
-
-                    // Atualiza os valores nos cartões principais
-                    if (distancia) document.getElementById('val-distancia').innerText = distancia;
-                    if (tempo) document.getElementById('val-tempo').innerText = tempo;
-                    
-                    // Atualiza o estado da sincronização com a hora da última atualização
-                    if (data) {
-                        document.getElementById('val-status').innerText = `Última sincronização bem-sucedida às ${data}.`;
-                    }
-                }
-            } catch (erro) {
-                console.error("Erro ao buscar dados da API:", erro);
-            }
-        }
-
-        // Atualiza a cada 5 segundos automaticamente
-        setInterval(atualizarPainel, 5000);
-        atualizarPainel();
-    </script>
+        document.getElementById('analysisBox').innerHTML = `
+            <h4>🎯 Diagnóstico de Desempenho:</h4>
+            <p>Treino concluído com <strong>${distKm.toFixed(2)} km</strong> em <strong>${tempoMin.toFixed(1)} min</strong> com pace de <strong>${paceStr}/km</strong>.</p>
+            <h4>🛑 Prescrição do Assessor:</h4>
+            <p>Mantenha a consistência. Amanhã priorize hidratação e descanso ou rodagem leve em Zona 2.</p>
+        `;
+    }
+    function simularTreino() { processarDados(5.0, 1500); }
+</script>
 </body>
 </html>
