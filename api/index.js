@@ -11,18 +11,23 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    // Mostra exatamente o que o Make enviou nos logs da Vercel
-    console.log("CORPO RECEBIDO DO MAKE:", JSON.stringify(req.body));
-
+    // Tenta apanhar os dados do corpo ou dos parâmetros de query
     let dados = req.body || {};
+    
     if (typeof dados === 'string') {
-      try { dados = JSON.parse(dados); } catch (e) {}
+      try { dados = JSON.parse(dados); } catch (e) { dados = {}; }
     }
 
-    // Tenta capturar os valores de forma totalmente flexível
+    // Se o corpo estiver vazio, tenta ler o query string por segurança
+    if (!dados || Object.keys(dados).length === 0) {
+      dados = req.query || {};
+    }
+
+    console.log("DADOS RECEBIDOS:", JSON.stringify(dados));
+
     ultimoTreino = {
-      distancia: dados.distancia || dados.distance || dados.dist || Object.values(dados)[0] || 'N/A',
-      tempo: dados.tempo || dados.moving_time || dados.duration || dados.time || Object.values(dados)[1] || 'N/A',
+      distancia: dados.distancia || dados.distance || dados.dist || 'N/A',
+      tempo: dados.tempo || dados.moving_time || dados.duration || dados.time || 'N/A',
       data: new Date().toLocaleTimeString('pt-BR')
     };
 
