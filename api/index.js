@@ -1,4 +1,4 @@
-let ultimoTreino = { distancia: "Aguardando treino...", tempo: "Aguardando treino..." };
+let ultimoTreino = { distancia: "Aguardando...", tempo: "Aguardando...", data: "" };
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -16,25 +16,20 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     let dados = req.body || {};
 
-    // Se o Make enviar os dados como string, tenta fazer parse
     if (typeof dados === 'string') {
-      try {
-        dados = JSON.parse(dados);
-      } catch (e) {
-        dados = {};
-      }
+      try { dados = JSON.parse(dados); } catch (e) { dados = {}; }
     }
 
-    // Atualiza com os valores limpos
+    // Captura flexível de qualquer propriedade enviada
     ultimoTreino = {
-      distancia: dados.distancia || dados.distance || 'N/A',
-      tempo: dados.tempo || dados.moving_time || 'N/A',
+      distancia: dados.distancia || dados.distance || dados.text || 'N/A',
+      tempo: dados.tempo || dados.moving_time || dados.duration || 'N/A',
       data: new Date().toLocaleTimeString('pt-BR')
     };
 
     return res.status(200).json({
       sucesso: true,
-      mensagem: "Treino registrado!",
+      recebido: dados,
       dados: ultimoTreino
     });
   }
