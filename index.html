@@ -44,16 +44,19 @@
         <h1>⚡ Assessor de Corrida Pro</h1>
         <p>Plataforma Inteligente de Periodização e Análise Strava</p>
     </header>
+    
     <div class="metrics-grid">
         <div class="metric-card"><div class="title">Distância</div><div class="value" id="distVal">0.00 km</div></div>
         <div class="metric-card"><div class="title">Tempo Total</div><div class="value" id="tempoVal">00:00</div></div>
         <div class="metric-card"><div class="title">Pace Médio</div><div class="value" id="paceVal">--'--"</div></div>
         <div class="metric-card"><div class="title">Velocidade Média</div><div class="value" id="velVal">0.0 km/h</div></div>
     </div>
+
     <div class="section-card">
         <div class="section-title">📊 Análise Técnica da Última Corrida</div>
         <div class="feedback-box" id="analysisBox">Aguardando sincronização GPS do Strava... Os dados aparecerão aqui automaticamente.</div>
     </div>
+
     <div class="section-card">
         <div class="section-title">🗓️ Periodização Semanal Recomendada</div>
         <table>
@@ -69,10 +72,14 @@
             </tbody>
         </table>
     </div>
+
     <button class="sim-btn" onclick="simularTreino()">🧪 Simular Corrida (5 km em 25 min)</button>
 </div>
+
 <script>
     function processarDados(km, segundos) {
+        if (!km || km <= 0 || !segundos || segundos <= 0) return;
+
         const distKm = km;
         const tempoMin = segundos / 60;
         const paceDec = tempoMin / distKm;
@@ -81,8 +88,15 @@
         const paceStr = `${pMin}'${pSeg < 10 ? '0' : ''}${pSeg}"`;
         const vel = (distKm / (segundos / 3600)).toFixed(1);
 
+        const h = Math.floor(segundos / 3600);
+        const m = Math.floor((segundos % 3600) / 60);
+        const s = Math.round(segundos % 60);
+        const tempoFormatado = h > 0 
+            ? `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`
+            : `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+
         document.getElementById('distVal').innerText = `${distKm.toFixed(2)} km`;
-        document.getElementById('tempoVal').innerText = `${Math.floor(segundos/60)}:${Math.round(segundos%60).toString().padStart(2,'0')}`;
+        document.getElementById('tempoVal').innerText = tempoFormatado;
         document.getElementById('paceVal').innerText = `${paceStr} /km`;
         document.getElementById('velVal').innerText = `${vel} km/h`;
 
@@ -93,7 +107,56 @@
             <p>Mantenha a consistência. Amanhã priorize hidratação e descanso ou rodagem leve em Zona 2.</p>
         `;
     }
-    function simularTreino() { processarDados(5.0, 1500); }
+
+    function converterTempoParaSegundos(tempoRaw) {
+        if (!tempoRaw) return 0;
+        const str = String(tempoRaw).trim().toLowerCase();
+        
+        if (str.includes('hour') || str.includes('hr')) {
+            const horas = parseFloat(str.replace(/[^\d.]/g, '')) || 0;
+            return horas * 3600;
+        }
+        if (str.includes('min')) {
+            const mins = parseFloat(str.replace(/[^\d.]/g, '')) || 0;
+            return mins * 60;
+        }
+        if (str.includes(':')) {
+            const partes = str.split(':').map(Number);
+            if (partes.length === 3) return partes[0] * 3600 + partes[1] * 60 + partes[2];
+            if (partes.length === 2) return partes[0] * 60 + partes[1];
+        }
+
+        return parseFloat(str.replace(/[^\d.]/g, '')) || 0;
+    }
+
+    async function carregarDadosDaAPI() {
+        try {
+            const res = await fetch('/api');
+            const json = await res.json();
+
+            if (json.sucesso && json.dados) {
+                const { distancia, tempo } = json.dados;
+
+                let rawDist = parseFloat(String(distancia).replace(/[^\d.]/g, '')) || 0;
+                let km = rawDist > 100 ? rawDist / 1000 : rawDist;
+                let segundos = converterTempoParaSegundos(tempo);
+
+                if (km > 0 && segundos > 0) {
+                    processarDados(km, segundos);
+                }
+            }
+        } catch (err) {
+            console.error("Aguardando novos dados da API...", err);
+        }
+    }
+
+    function simularTreino() { 
+        processarDados(5.0, 1500); 
+    }
+
+    // Sincroniza automaticamente a cada 5 segundos
+    setInterval(carregarDadosDaAPI, 5000);
+    carregarDadosDaAPI();
 </script>
 </body>
 </html>
