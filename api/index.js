@@ -1,5 +1,8 @@
+// Variável armazenada em memória no servidor (persiste entre requisições quentes)
+let ultimoTreino = null;
+
 export default async function handler(req, res) {
-  // Configuração de CORS para permitir requisições de qualquer origem
+  // Configurações de CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
@@ -9,16 +12,32 @@ export default async function handler(req, res) {
   );
 
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
-  // Resposta para testes via navegador (GET) ou envio de dados (POST)
-  const dadosRecebidos = req.body || {};
+  // Se o Make enviar dados via POST:
+  if (req.method === 'POST') {
+    const dados = req.body || {};
+    
+    // Atualiza o treino guardado
+    ultimoTreino = {
+      distancia: dados.distancia || 'N/A',
+      tempo: dados.tempo || 'N/A',
+      data: new Date().toLocaleString('pt-BR')
+    };
 
-  return res.status(200).json({
-    sucesso: true,
-    mensagem: "API rodando com sucesso!",
-    dados: dadosRecebidos
-  });
+    return res.status(200).json({
+      sucesso: true,
+      mensagem: "Treino recebido e salvo na API!",
+      dados: ultimoTreino
+    });
+  }
+
+  // Se a página web (index.html) consultar via GET:
+  if (req.method === 'GET') {
+    return res.status(200).json({
+      sucesso: true,
+      dados: ultimoTreino
+    });
+  }
 }
