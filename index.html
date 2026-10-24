@@ -1,132 +1,244 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Assessor de Corrida Pro - Strava</title>
-  <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      background: #121212; 
-      color: #fff; 
-      text-align: center; 
-      padding: 20px; 
-      margin: 0;
-    }
-    h1 { 
-      color: #fc4c02; 
-      margin-bottom: 5px;
-    }
-    .subtitle {
-      color: #888;
-      font-size: 14px;
-      margin-bottom: 25px;
-    }
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .card { 
-      background: #1e1e1e; 
-      padding: 20px; 
-      border-radius: 10px; 
-      border-left: 5px solid #fc4c02; 
-      text-align: left;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
-    .card span {
-      display: block;
-      color: #aaa;
-      font-size: 11px;
-      font-weight: bold;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
-    .card h2 { 
-      margin: 0; 
-      font-size: 24px; 
-      color: #fff; 
-    }
-    .status-container {
-      margin-top: 30px;
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
-      background: #1e1e1e;
-      padding: 15px;
-      border-radius: 8px;
-      border: 1px solid #333;
-      color: #bbb;
-      font-size: 13px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessor de Corrida Pro</title>
+    <style>
+        :root {
+            --bg-main: #0b1329;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-color: #f39c12;
+            --text-main: #ffffff;
+            --text-muted: #a0aec0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Cartões de Métricas */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .metric-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 1.6rem;
+            font-weight: bold;
+        }
+
+        .metric-value.distance { color: #2ecc71; }
+        .metric-value.time { color: #3498db; }
+        .metric-value.pace { color: #e74c3c; }
+        .metric-value.speed { color: #f1c40f; }
+
+        /* Secção de Análise */
+        .section-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sync-status {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Tabela de Periodização */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        td:nth-child(2) {
+            color: #3498db;
+            font-weight: 500;
+        }
+    </style>
 </head>
 <body>
 
-  <h1>⚡ ASSESSOR DE CORRIDA PRO</h1>
-  <div class="subtitle">Plataforma Inteligente de Periodização e Análise Strava</div>
+    <div class="container">
+        <!-- Cabeçalho -->
+        <header>
+            <h1>⚡ ASSESSOR DE CORRIDA PRO</h1>
+            <p>Plataforma Inteligente de Periodização e Análise Strava</p>
+        </header>
 
-  <!-- CARTÕES DE MÉTRICAS -->
-  <div class="metrics-grid">
-    <div class="card">
-      <span>DISTÂNCIA</span>
-      <h2 id="distancia">0.00 km</h2>
+        <!-- Cartões de Métricas -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-title">Distância</div>
+                <div id="val-distancia" class="metric-value distance">0.00 km</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Tempo Total</div>
+                <div id="val-tempo" class="metric-value time">00:00</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Pace Médio</div>
+                <div id="val-pace" class="metric-value pace">--'--&quot;</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Velocidade Média</div>
+                <div id="val-velocidade" class="metric-value speed">0.0 km/h</div>
+            </div>
+        </div>
+
+        <!-- Análise Técnica -->
+        <div class="section-box">
+            <div class="section-title">📊 Análise Técnica da Última Corrida</div>
+            <div id="val-status" class="sync-status">Aguardando sincronização GPS do Strava... Os dados aparecerão aqui automaticamente.</div>
+        </div>
+
+        <!-- Periodização Semanal -->
+        <div class="section-box">
+            <div class="section-title">📅 Periodização Semanal Recomendada</div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dia</th>
+                            <th>Tipo de Treino</th>
+                            <th>Meta</th>
+                            <th>Foco do Assessor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Segunda</td>
+                            <td>Corrida Contínua (Z2)</td>
+                            <td>5.0 km</td>
+                            <td>Desenvolvimento aeróbico.</td>
+                        </tr>
+                        <tr>
+                            <td>Terça</td>
+                            <td>Fortalecimento Miniband</td>
+                            <td>40 min</td>
+                            <td>Estabilidade de joelhos e core.</td>
+                        </tr>
+                        <tr>
+                            <td>Quarta</td>
+                            <td>Treino Intervalado</td>
+                            <td>6x 400m</td>
+                            <td>Ganho de velocidade e VO2.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <div class="card">
-      <span>TEMPO TOTAL</span>
-      <h2 id="tempo">00:00</h2>
-    </div>
+    <script>
+        async function atualizarPainel() {
+            try {
+                const resposta = await fetch('/api');
+                const resultado = await resposta.json();
 
-    <div class="card">
-      <span>PACE MÉDIO</span>
-      <h2 id="pace">--'--"</h2>
-    </div>
+                if (resultado.sucesso && resultado.dados) {
+                    const { distancia, tempo, data } = resultado.dados;
 
-    <div class="card">
-      <span>VELOCIDADE MÉDIA</span>
-      <h2 id="velocidade">0.0 km/h</h2>
-    </div>
-  </div>
-
-  <!-- STATUS DE SINCRONIZAÇÃO -->
-  <div class="status-container" id="conteudo-status">
-    🔄 Aguardando sincronização GPS do Strava... Os dados aparecerão aqui automaticamente.
-  </div>
-
-  <script>
-    async function carregarTreinos() {
-      try {
-        const res = await fetch('/api');
-        const data = await res.json();
-        
-        if (data.sucesso && data.dados) {
-          const { distancia, tempo, pace, velocidade, data: horaSinc } = data.dados;
-
-          // Atualiza os valores nos cartões
-          document.getElementById('distancia').innerText = distancia || '0.00 km';
-          document.getElementById('tempo').innerText = tempo || '00:00';
-          document.getElementById('pace').innerText = pace || '--\'--"';
-          document.getElementById('velocidade').innerText = velocidade || '0.0 km/h';
-
-          // Atualiza a barra de status se houver um treino válido
-          const statusDiv = document.getElementById('conteudo-status');
-          if (distancia && distancia !== "0.00 km") {
-            statusDiv.innerHTML = `✅ Último treino sincronizado às <strong>${horaSinc || 'Agora'}</strong> | Distância: ${distancia} | Tempo: ${tempo}`;
-          }
+                    // Atualiza os valores nos cartões principais
+                    if (distancia) document.getElementById('val-distancia').innerText = distancia;
+                    if (tempo) document.getElementById('val-tempo').innerText = tempo;
+                    
+                    // Atualiza o estado da sincronização com a hora da última atualização
+                    if (data) {
+                        document.getElementById('val-status').innerText = `Última sincronização bem-sucedida às ${data}.`;
+                    }
+                }
+            } catch (erro) {
+                console.error("Erro ao buscar dados da API:", erro);
+            }
         }
-      } catch (err) {
-        console.error("Erro ao carregar dados:", err);
-      }
-    }
 
-    // Carrega ao abrir e atualiza a cada 5 segundos em tempo real
-    carregarTreinos();
-    setInterval(carregarTreinos, 5000);
-  </script>
-
+        // Atualiza a cada 5 segundos automaticamente
+        setInterval(atualizarPainel, 5000);
+        atualizarPainel();
+    </script>
 </body>
 </html>
