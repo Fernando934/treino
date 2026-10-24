@@ -1,4 +1,4 @@
-let ultimoTreino = { distancia: "Pendente", tempo: "Pendente" };
+let ultimoTreino = { distancia: "Aguardando dados...", tempo: "Aguardando dados..." };
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -16,15 +16,17 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const dados = req.body || {};
     
+    // Captura os dados independentemente de como o Make os nomeou
     ultimoTreino = {
-      distancia: dados.distancia || dados.distance || 'N/A',
-      tempo: dados.tempo || dados.moving_time || 'N/A',
+      distancia: dados.distancia || dados.distance || JSON.stringify(dados) || 'N/A',
+      tempo: dados.tempo || dados.moving_time || dados.duration || 'N/A',
       data: new Date().toLocaleTimeString('pt-BR')
     };
 
     return res.status(200).json({
       sucesso: true,
-      mensagem: "Dados guardados com sucesso!",
+      mensagem: "Dados mapeados com sucesso!",
+      recebido: dados,
       dados: ultimoTreino
     });
   }
