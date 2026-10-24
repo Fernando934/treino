@@ -1,34 +1,51 @@
-async function atualizarDashboard() {
+let ultimoTreino = { distancia: "0.00 km", tempo: "00:00", data: "" };
+
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   try {
-    const resposta = await fetch('/api');
-    const resultado = await resposta.json();
+    if (req.method === 'POST') {
+      let dados = req.body || {};
+      
+      if (typeof dados === 'string') {
+        try { dados = JSON.parse(dados); } catch (e) { dados = {}; }
+      }
 
-    if (resultado.sucesso && resultado.dados) {
-      let { distancia, tempo } = resultado.dados;
+      const rawDist = String(dados.distancia || dados.distance || dados.dist || "0");
+      const rawTempo = String(dados.tempo || dados.moving_time || dados.duration || dados.time || "00:00");
 
-      // 1. Limpa espaços e extrai apenas números de distancia
-      let distNum = parseFloat(String(distancia).replace(/[^\d.]/g, '')) || 0;
-
-      // Se o valor estiver em metros (ex: 15000.0), converte para km
+      // Converte metros para km de forma segura
+      let distNum = parseFloat(rawDist.replace(/[^\d.]/g, '')) || 0;
       if (distNum > 100) {
         distNum = distNum / 1000;
       }
 
-      // 2. Extrai horas/minutos do tempo recebido
-      let tempoTexto = String(tempo).trim();
+      ultimoTreino = {
+        distancia: `${distNum.toFixed(2)} km`,
+        tempo: rawTempo.trim(),
+        data: new Date().toLocaleTimeString('pt-BR')
+      };
 
-      // Atualiza os elementos na página (ajuste os IDs de acordo com o seu HTML)
-      const elDistancia = document.getElementById('distancia') || document.querySelector('.distancia-val');
-      const elTempo = document.getElementById('tempo') || document.querySelector('.tempo-val');
+      return res.status(200).json({
+        sucesso: true,
+        dados: ultimoTreino
+      });
+    }
 
-      if (elDistancia) elDistancia.innerText = `${distNum.toFixed(2)} km`;
-      if (elTempo) elTempo.innerText = tempoTexto;
+    if (req.method === 'GET') {
+      return res.status(200).json({
+        sucesso: true,
+        dados: ultimoTreino
+      });
     }
   } catch (erro) {
-    console.error("Erro ao atualizar o dashboard:", erro);
+    return res.status(500).json({ sucesso: false, erro: erro.message });
   }
 }
-
-// Executa a cada 5 segundos para manter o dashboard atualizado em tempo real
-setInterval(atualizarDashboard, 5000);
-atualizarDashboard();
