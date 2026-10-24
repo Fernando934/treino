@@ -61,7 +61,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ sucesso: false, erro: "Método não permitido" });
 
   } catch (erro) {
-    // Nunca mais dá erro 500, devolve o erro de forma tratada em JSON
     return res.status(200).json({ 
       sucesso: true, 
       dados: ultimoTreino, 
