@@ -25,7 +25,8 @@
         .metric-card .title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; }
         .metric-card .value { font-size: 24px; font-weight: bold; color: var(--accent-green); margin-top: 5px; }
         .section-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-        .section-title { font-size: 18px; color: var(--accent-neon); margin-bottom: 15px; }
+        .section-title { font-size: 18px; color: var(--accent-neon); margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .sub-title { font-size: 12px; color: var(--text-muted); margin-bottom: 15px; }
         .feedback-box { background: #0f1217; border-left: 4px solid var(--accent-green); padding: 15px; border-radius: 6px; line-height: 1.6; font-size: 15px; color: #d1d5db; }
         .feedback-box h4 { color: var(--text-main); margin-top: 10px; margin-bottom: 5px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
@@ -58,17 +59,14 @@
     </div>
 
     <div class="section-card">
-        <div class="section-title">🗓️ Periodização Semanal Recomendada</div>
+        <div class="section-title">
+            <span>🗓️ Periodização Semanal Automática</span>
+        </div>
+        <div class="sub-title" id="blocoFoco">Carregando ciclo de treinamento atual...</div>
         <table>
             <thead><tr><th>Dia</th><th>Tipo de Treino</th><th>Meta</th><th>Foco do Assessor</th></tr></thead>
-            <tbody>
-                <tr><td>Segunda</td><td class="tag-run">Corrida Contínua (Z2)</td><td>5.0 km</td><td>Desenvolvimento aeróbico.</td></tr>
-                <tr><td>Terça</td><td class="tag-strength">Fortalecimento Miniband</td><td>40 min</td><td>Estabilidade de joelhos e core.</td></tr>
-                <tr><td>Quarta</td><td class="tag-run">Treino Intervalado</td><td>6x 400m</td><td>Ganho de velocidade e VO2.</td></tr>
-                <tr><td>Quinta</td><td class="tag-rest">Descanso Total</td><td>--</td><td>Recuperação tecidual.</td></tr>
-                <tr><td>Sexta</td><td class="tag-run">Rodagem Regenerativa</td><td>4.0 km</td><td>Soltar as pernas levemente.</td></tr>
-                <tr><td>Sábado</td><td class="tag-run">Longão Progressivo</td><td>8.0 km</td><td>Resistência e gestão de ritmo.</td></tr>
-                <tr><td>Domingo</td><td class="tag-rest">Descanso Total</td><td>--</td><td>Supercompensação completa.</td></tr>
+            <tbody id="tabelaPeriodizazione">
+                <!-- Preenchido dinamicamente pela API -->
             </tbody>
         </table>
     </div>
@@ -100,11 +98,16 @@
         document.getElementById('paceVal').innerText = `${paceStr} /km`;
         document.getElementById('velVal').innerText = `${vel} km/h`;
 
+        // Análise técnica profissional baseada nos dados
+        let avaliacao = "Excelente consistência aeróbica.";
+        if (paceDec < 4.5) avaliacao = "Ritmo forte de alta intensidade (Sessão de Limiar/VO2).";
+        else if (paceDec > 6.0) avaliacao = "Sessão regenerativa executada com excelente controle de esforço.";
+
         document.getElementById('analysisBox').innerHTML = `
-            <h4>🎯 Diagnóstico de Desempenho:</h4>
-            <p>Treino concluído com <strong>${distKm.toFixed(2)} km</strong> em <strong>${tempoMin.toFixed(1)} min</strong> com pace de <strong>${paceStr}/km</strong>.</p>
-            <h4>🛑 Prescrição do Assessor:</h4>
-            <p>Mantenha a consistência. Amanhã priorize hidratação e descanso ou rodagem leve em Zona 2.</p>
+            <h4>🎯 Diagnóstico de Desempenho (Profissional):</h4>
+            <p>Sessão registrada com <strong>${distKm.toFixed(2)} km</strong> em <strong>${tempoMin.toFixed(1)} min</strong> (Pace: <strong>${paceStr}/km</strong> | Velocidade: <strong>${vel} km/h</strong>).</p>
+            <h4>🛑 Parecer do Assessor:</h4>
+            <p>${avaliacao} O volume foi computado com sucesso na sua periodização semanal. Hidrate-se bem e respeite o descanso programado.</p>
         `;
     }
 
@@ -129,24 +132,53 @@
         return parseFloat(str.replace(/[^\d.]/g, '')) || 0;
     }
 
+    function renderizarTabela(periodo) {
+        if (!periodo || !periodo.dias) return;
+        document.getElementById('blocoFoco').innerText = `Foco da Ciclo Atual: ${periodo.focoGeral}`;
+        
+        const tbody = document.getElementById('tabelaPeriodizazione');
+        tbody.innerHTML = '';
+
+        periodo.dias.forEach(item => {
+            let classeTag = 'tag-run';
+            if (item.tipo.includes('Fortalecimento')) classeTag = 'tag-strength';
+            if (item.tipo.includes('Descanso')) classeTag = 'tag-rest';
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.dia}</td>
+                    <td class="${classeTag}">${item.tipo}</td>
+                    <td>${item.meta}</td>
+                    <td>${item.assessor}</td>
+                </tr>
+            `;
+        });
+    }
+
     async function carregarDadosDaAPI() {
         try {
             const res = await fetch('/api');
             const json = await res.json();
 
-            if (json.sucesso && json.dados) {
-                const { distancia, tempo } = json.dados;
+            if (json.sucesso) {
+                // Renderiza a periodização gerada automaticamente pela API
+                if (json.periodizazione) {
+                    renderizarTabela(json.periodizazione);
+                }
 
-                let rawDist = parseFloat(String(distancia).replace(/[^\d.]/g, '')) || 0;
-                let km = rawDist > 100 ? rawDist / 1000 : rawDist;
-                let segundos = converterTempoParaSegundos(tempo);
+                // Processa o último treino se houver dados reais
+                if (json.dados && json.dados.distancia) {
+                    let rawDist = parseFloat(String(json.dados.distancia).replace(/[^\d.]/g, '')) || 0;
+                    let km = rawDist > 100 ? rawDist / 1000 : rawDist;
+                    let segundos = converterTempoParaSegundos(json.dados.tempo);
 
-                if (km > 0 && segundos > 0) {
-                    processarDados(km, segundos);
+                    if (km > 0 && segundos > 0) {
+                        processarDados(km, segundos);
+                    }
                 }
             }
         } catch (err) {
-            console.error("Aguardando novos dados da API...", err);
+            console.error("Aguardando sincronização...", err);
         }
     }
 
@@ -154,7 +186,6 @@
         processarDados(5.0, 1500); 
     }
 
-    // Sincroniza automaticamente a cada 5 segundos
     setInterval(carregarDadosDaAPI, 5000);
     carregarDadosDaAPI();
 </script>
