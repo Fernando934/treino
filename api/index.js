@@ -12,16 +12,19 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'POST') {
-      let dados = req.body || {};
+      let dados = {};
       
-      if (typeof dados === 'string') {
-        try { dados = JSON.parse(dados); } catch (e) { dados = {}; }
+      if (req.body) {
+        if (typeof req.body === 'string') {
+          try { dados = JSON.parse(req.body); } catch (e) { dados = {}; }
+        } else {
+          dados = req.body;
+        }
       }
 
       const rawDist = String(dados.distancia || dados.distance || dados.dist || "0");
       const rawTempo = String(dados.tempo || dados.moving_time || dados.duration || dados.time || "00:00");
 
-      // Converte metros para km de forma segura
       let distNum = parseFloat(rawDist.replace(/[^\d.]/g, '')) || 0;
       if (distNum > 100) {
         distNum = distNum / 1000;
